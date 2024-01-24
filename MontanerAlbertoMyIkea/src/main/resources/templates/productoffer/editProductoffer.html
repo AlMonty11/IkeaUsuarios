@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Mueble</title>
+</head>
+<body>
+<div th:replace="~{fragments/cabecera::cabecera}"></div>
+<div class="px-5">
+    <h1>Editar Producto</h1>
+    <form th:object="${producto}" th:action="@{/modificarProducto}" method="post">
+        <!-- Campo oculto para el ID del producto -->
+        <input type="hidden" th:field="*{productId}" />
+
+        <div class="mb-3">
+            <label class="form-label" for="productName">Nombre:</label>
+            <input class="form-input" type="text" id="productName" th:field="*{productName}" />
+            <span th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="productPrice">Precio:</label>
+            <input class="form-input" type="number" id="productPrice" th:field="*{productPrice}" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="productStock">Stock:</label>
+            <input class="form-input" type="number" id="productStock" th:field="*{productStock}" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label me-3" for="idProvincia">Provincia:</label>
+            <select class="form-select" id="idProvincia" name="provinciaId">
+                <option th:each="provincia : ${provincias}" th:value="${provincia.idProvincia}" th:text="${provincia.nombre}"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label me-3" for="idMunicipio">Municipio:</label>
+            <select class="form-select" id="idMunicipio" name="municipioId" th:field="*{idMunicipio}">
+                <option th:each=" municipio : ${municipios}" th:class="${municipio.idProvincia}" th:value="${municipio.idMunicipio}" th:text="${municipio.nombre}">  <!--th:unless="${municipio.idProvincia != provincias.idProvincia}"--></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="productPicture">Nueva Imagen del Producto:</label>
+            <input class="form-control"  type="file" id="productPicture" th:field="*{productPicture}" alt=""/>
+            <span th:if="${#fields.hasErrors('productPicture')}" th:errors="*{productPicture}"></span>
+        </div>
+
+        <div>
+            <strong>Imagen Actual:</strong>
+            <div>
+                <img th:src="@{'/images/'+${producto.productPicture}}" alt="">
+            </div>
+        </div>
+
+
+
+        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+        <a class="btn btn-secondary" th:href="@{/productoffer}">Volver al listado</a>
+    </form>
+</div>
+<script>
+    let provinciaSelect = document.getElementById("idProvincia");
+    let municipioSelect = document.getElementById("idMunicipio")
+    let provinciaSeleccionada = provinciaSelect.value;
+
+    provinciaSelect.addEventListener("change", function() {
+        let provinciaSeleccionada = provinciaSelect.value;
+        actualizarMunicipios(provinciaSeleccionada);
+    });
+
+    municipioSelect.addEventListener("change", function () {
+        let selectedMunicipio = municipioSelect.value;
+        actualizarProvincia(selectedMunicipio);
+    });
+    function actualizarMunicipios(selectedProvincia) {
+        Array.from(municipioSelect.options).forEach(function (option) {
+            option.style.display = "none";
+        });
+
+        // Muestra solo los municipios de la provincia seleccionada
+        Array.from(municipioSelect.options).forEach(function (option) {
+            if (option.getAttribute("class") === selectedProvincia || option.value === "") {
+                option.style.display = "block";
+            }
+        });
+    }
+
+    function actualizarProvincia(selectedMunicipio) {
+        let provincia = obtenerProvinciaDeMunicipio(selectedMunicipio);
+
+        // Actualiza el select de provincia
+        provinciaSelect.value = provincia;
+    }
+
+    function obtenerProvinciaDeMunicipio(municipio) {
+        let opcionesMunicipio = municipioSelect.querySelectorAll("option");
+        for (let i = 0; i < opcionesMunicipio.length; i++) {
+            if (opcionesMunicipio[i].value === municipio) {
+                return opcionesMunicipio[i].getAttribute("class");
+            }
+        }
+        return null;
+    }
+</script>
+</body>
+</html>

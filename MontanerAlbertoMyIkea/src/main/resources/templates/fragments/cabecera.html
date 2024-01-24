@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Ikea</title>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-primary border-bottom box-shadow mb-3" th:fragment="cabecera">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="/">My Ikea</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between" sec:authorize="isAuthenticated()">
+                <ul class="navbar-nav flex-grow-1" >
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')">
+                        <a class="nav-link text-white" th:href="@{/productoffer}">Muebles</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_USER') and !hasRole('ROLE_MANAGER') and !hasRole('ROLE_ADMIN')">
+                        <a class="nav-link text-white"  th:href="@{/pedidos}">Pedido</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_USER') and !hasRole('ROLE_MANAGER') and !hasRole('ROLE_ADMIN')">
+                        <a class="nav-link text-white" th:href="@{/carrito}">Carrito</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a class="nav-link text-white" th:href="@{/usuarios}">USUARIOS</a>
+                    </li>
+                </ul>
+            </div>
+            <div  sec:authorize="isAuthenticated()" style="margin-right: 2%" >
+                <div sec:authorize="hasRole('ROLE_USER') and !hasRole('ROLE_MANAGER')" >
+                    <form th:action="@{/ascenderManager}" method="POST" id="managerForm">
+                        <button id="ocultar" class="btn btn-outline-warning" type="submit" onclick="desaparecerDiv(e)">Hazte MANAGER</button>
+                    </form>
+                </div>
+
+                <div sec:authorize="hasRole('ROLE_MANAGER') and !hasRole('ROLE_PREMIUM')" >
+                    <form th:action="@{/ascenderAdmin}" method="POST" id="adminForm">
+                        <button  class="btn btn-outline-warning" type="submit">Hazte ADMINISTRADOR</button>
+                    </form>
+                </div>
+            </div>
+            <div sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="POST" id="logoutForm">
+                    <span th:text="${#authentication.name}" class="text-light me-2"></span>
+                    <button class="btn btn-outline-light" type="submit">Salir</button>
+                </form>
+            </div>
+
+            <div sec:authorize="!isAuthenticated()" style="margin-left:auto">
+            <a class="btn btn-secondary" href="/register" role="button">Registro</a>
+            <a class="btn btn-outline-light" href="/login" role="button">Entrar</a>
+        </div>
+        </div>
+    </nav>
+</header>
+<script>
+    function desaparecerDiv(e) {
+        e.preventDefault();
+        let div = document.getElementById("ocultar");
+        div.style.display = "none";
+    }
+</script>
+</body>
+</html>
